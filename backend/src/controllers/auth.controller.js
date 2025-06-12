@@ -37,9 +37,9 @@ export const signUp = async (req, res) => {
         name: newUser.fullName,
         image: newUser.profilePic || "",
       });
-      console.log(`Stream user created for ${newUser.fullName}`)
+      console.log(`Stream user created for ${newUser.fullName}`);
     } catch (error) {
-      console.log("Error creating stream user: ", error)
+      console.log("Error creating stream user: ", error);
     }
 
     const token = jwt.sign(
@@ -99,4 +99,52 @@ export const logIn = async (req, res) => {
 export const logOut = async (req, res) => {
   res.clearCookie("jwt");
   res.status(200).json({ success: true, message: "Logout successfull" });
+};
+
+export const onBoard = async (req, res) => {
+  const userId = req.user._id;
+
+  try {
+    const { fullName, bio, nativeLanguage, learningLanguage, location } =
+      req.body;
+    if (!fullName || !bio || !nativeLanguage || !learningLanguage || !location)
+      return res.status(400).json({
+        message: "All fields are required",
+        missingFields: [
+          !fullName && "fullName",
+          !bio && "bio",
+          !nativeLanguage && "nativeLanguage",
+          !learningLanguage && "learningLanguage",
+          !location && "location",
+        ].filter(Boolean),
+      });
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        ...req.body,
+        isOnBoarded: true,
+      },
+      { new: true }
+    );
+
+    if (!updatedUser)
+      return res.status(404).json({ message: "User not found" });
+
+    try {
+      await upsertStreamUser({
+        id: updatedUser._id.toString(),
+        name: updatedUser.fullName,
+        image: updatedUser.profilePic || ""
+      })
+      console.log(`Stream user updated after onboarding for ${updatedUser.fullName}`)
+    } catch (streamError) {
+      console.log("Error updating the stream user during onboarding: ", streamError.message)
+    }
+
+    res.status(200).json({ success: true, user: updatedUser });
+  } catch (error) {
+    console.log("Onboarding error: ", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
