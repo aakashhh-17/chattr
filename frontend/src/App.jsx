@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router";
+import axios from 'axios'
 
 import CallPage from "./pages/CallPage";
 import ChatPage from "./pages/ChatPage";
@@ -8,8 +9,21 @@ import NotificationsPage from "./pages/NotificationsPage";
 import OnboardingPage from "./pages/OnboardingPage";
 import SignupPage from "./pages/SignupPage";
 import { Toaster } from "react-hot-toast";
+import { useQuery } from "@tanstack/react-query";
+import { axiosInstance } from "./lib/axios";
 
 const App = () => {
+
+  const {data, isLoading, error} = useQuery({queryKey: ['todos'],
+
+    queryFn: async ()=>{
+      const res = await axiosInstance.get('/auth/me')
+      return res.data;
+    },
+    retry: false,
+  })
+
+console.log(data);
   return (
     <div className="h-screen" data-theme="night">
       <Routes>
