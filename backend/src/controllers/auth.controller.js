@@ -6,20 +6,21 @@ export const signUp = async (req, res) => {
   const { fullName, email, password } = req.body;
   try {
     if (!fullName || !email || !password) {
-      return res.status(400).json({ msg: "All fields are required" });
+      return res.status(400).json({ message: "All fields are required" });
     }
     if (password.length < 6) {
       return res
         .status(400)
-        .json({ msg: "Password must be at least 6 characters" });
+        .json({ message: "Password must be at least 6 characters" });
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ message: "Invalid email format" });
     }
     const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ msg: "User already exists" });
+    const existingUser2 = await User.findOne({ fullName });
+    if (existingUser || existingUser2) {
+      return res.status(400).json({ message: "User already exists" });
     }
 
     const idx = Math.floor(Math.random() * 100) + 1;
@@ -61,7 +62,7 @@ export const signUp = async (req, res) => {
       .json({ success: true, user: newUser, message: "New User created!" });
   } catch (error) {
     console.log("Error in signup controller: ", error);
-    res.status(500).json({ message: "Internal server error" }, error);
+    res.status(500).json({ message: "Internal server error" , error});
   }
 };
 
