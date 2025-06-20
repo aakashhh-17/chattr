@@ -7,7 +7,12 @@ import {
   sendFriendRequest,
 } from "../lib/api";
 import { Link } from "react-router";
-import { CheckCircleIcon, MapPinIcon, UserPlusIcon, UsersIcon } from "lucide-react";
+import {
+  CheckCircleIcon,
+  MapPinIcon,
+  UserPlusIcon,
+  UsersIcon,
+} from "lucide-react";
 import FriendCard, { getLanguageFlag } from "../components/FriendCard";
 import NoFriendsFound from "../components/NoFriendsFound";
 import { capitialize } from "../lib/utils";
@@ -39,13 +44,20 @@ const HomePage = () => {
 
   useEffect(() => {
     const outgoingIds = new Set();
+    // console.log('recommended users: ', recommendedUsers);
     if (outgoingFriendReqs && outgoingFriendReqs.length > 0) {
       outgoingFriendReqs.forEach((req) => {
-        console.log(req);
-        outgoingIds.add(req.recipient._id);
+        if(req.recipient && req.recipient._id){
+          console.log(req.recipient);
+          outgoingIds.add(req.recipient._id);
+        }
+        else{
+          console.log('missing recipient in request: ', req)
+        }
       });
       setOutGoingRequestsIds(outgoingIds);
     }
+    console.log("outgoingRequestIds: ", outgoingRequestsIds);
   }, [outgoingFriendReqs]);
 
   return (
@@ -107,6 +119,7 @@ const HomePage = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {recommendedUsers.map((user) => {
                 const hasRequestBeenSent = outgoingRequestsIds.has(user._id);
+                // console.log(user._id);
 
                 return (
                   <div
@@ -144,7 +157,9 @@ const HomePage = () => {
                         </span>
                       </div>
 
-                      {user.bio && <p className="text-sm opacity-70">{user.bio}</p>}
+                      {user.bio && (
+                        <p className="text-sm opacity-70">{user.bio}</p>
+                      )}
 
                       {/* Action button */}
                       <button
@@ -166,7 +181,6 @@ const HomePage = () => {
                           </>
                         )}
                       </button>
-
                     </div>
                   </div>
                 );
@@ -180,5 +194,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-
-

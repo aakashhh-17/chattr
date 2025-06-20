@@ -10,7 +10,7 @@ export const getRecommendations = async (req, res) => {
       $and: [
         { _id: { $ne: currentUserId } }, //exclude current user
         { _id: { $nin: currentUser.friends } }, //exclude current user's friends
-        { isOnBoarded: true },
+        { isOnboarded: true },
       ],
     });
     res.status(200).json(recommendedUsers);
@@ -40,6 +40,11 @@ export const sendFriendRequest = async (req, res) => {
   try {
     const myId = req.user.id;
     const { id: recipientId } = req.params;
+
+    // console.log("myId: ", myId);
+    // console.log("recipientId: ", recipientId);
+    
+
     if (myId === recipientId)
       return res
         .status(400)
@@ -48,7 +53,7 @@ export const sendFriendRequest = async (req, res) => {
     const recipient = await User.findById(recipientId);
     if (!recipient) return res.status(404).json({ message: "User not found" });
 
-    if (recipient.friends.includes(myId))
+    if ( recipient.friends && recipient.friends.includes(myId))
       return res
         .status(400)
         .json({ message: "You are already friends with this user" });
@@ -132,7 +137,7 @@ export const getOutgoingFriendReqs = async (req, res)=>{
   try {
     const outgoingReqs = await FriendRequest.find({
       sender: req.user.id,
-      status: 'Pending'
+      status: 'pending'
     }).populate('recipient', 'fullName profilePic')
   
      res.status(200).json(outgoingReqs);
