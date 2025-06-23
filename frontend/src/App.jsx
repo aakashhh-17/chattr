@@ -12,6 +12,7 @@ import PageLoader from "./components/PageLoader";
 import useAuthUser from "./hooks/useAuthUser.js";
 import Layout from "./components/Layout.jsx";
 import { useThemeStore } from "./store/useThemeStore.js";
+import Friends from "./pages/Friends.jsx";
 
 const App = () => {
   const { authUser, isLoading } = useAuthUser();
@@ -101,6 +102,12 @@ const App = () => {
             )
           }
         />
+
+        <Route path="/friends" element={
+          <Layout showSidebar >
+            <Friends />
+          </Layout>
+        } />
       </Routes>
 
       <Toaster />
